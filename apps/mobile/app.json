@@ -23,7 +23,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-sqlite", "expo-image", "expo-localization", "expo-splash-screen"],
+    "plugins": [
+      "expo-sqlite",
+      "expo-image",
+      "expo-localization",
+      "expo-splash-screen",
+      "expo-asset",
+      "expo-font"
+    ],
     "scheme": "glimpse"
   }
 }
