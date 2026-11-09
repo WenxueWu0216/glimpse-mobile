@@ -28,6 +28,14 @@ export const zh: Translations = {
     emptyBody: '点击笔记上的书签即可收藏。',
     errorTitle: '收藏加载失败',
   },
+  offline: {
+    banner: '当前离线，正在显示已缓存的内容。',
+    bannerPending_one: '当前离线，{{count}} 项操作将在联网后同步。',
+    bannerPending_other: '当前离线，{{count}} 项操作将在联网后同步。',
+    syncFailed: '有一项离线操作未能同步。',
+    noCacheTitle: '当前离线',
+    noCacheBody: '请连接网络后加载笔记。',
+  },
   composer: {
     open: '发布笔记',
     title: '发布笔记',

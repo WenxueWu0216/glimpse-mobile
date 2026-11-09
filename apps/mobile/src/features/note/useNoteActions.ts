@@ -5,11 +5,46 @@ import i18n from '../../i18n';
 import { noteKey, patchNote } from '../../api/noteCache';
 import { setLike, setSave } from '../../api/notes';
 import type { Note } from '../../api/types';
+import { ApiError } from '../../api/client';
+import { getSyncQueue } from '../../offline/runtime';
+import type { ActionKind } from '../../offline/types';
+import { useNetworkStore } from '../../state/networkStore';
 import { useToastStore } from '../../state/toastStore';
 
 interface ToggleVars {
   note: Note;
   value: boolean;
+}
+
+/**
+ * Sends the action now, or stores it in the offline queue when there is no
+ * connection. Returns null when queued: the optimistic value stays on screen
+ * and the queue reconciles with the server after reconnecting.
+ */
+async function sendOrQueue<T>(
+  kind: ActionKind,
+  noteId: number,
+  value: boolean,
+  send: (noteId: number, value: boolean) => Promise<T>,
+): Promise<T | null> {
+  const queue = getSyncQueue();
+  const { isOnline } = useNetworkStore.getState();
+  // If an older action for this note is still queued, go through the queue
+  // too, otherwise the two could reach the server in the wrong order.
+  if (!isOnline || (await queue.has(noteId, kind))) {
+    await queue.enqueue({ noteId, kind, value });
+    if (isOnline) void queue.flush();
+    return null;
+  }
+  try {
+    return await send(noteId, value);
+  } catch (error) {
+    // The server said no: surface it so onError rolls back.
+    if (error instanceof ApiError) throw error;
+    // The request never arrived (connection dropped before NetInfo noticed).
+    await queue.enqueue({ noteId, kind, value });
+    return null;
+  }
 }
 
 /**
@@ -20,6 +55,9 @@ interface ToggleVars {
  * 3. onSuccess – replace our guess with the server's real count
  *    onError   – put the old values back and tell the user
  *
+ * `networkMode: 'always'` lets the mutation run while offline (React Query
+ * would otherwise pause it), because sendOrQueue handles that case itself.
+ *
  * The UI therefore responds on the same frame as the tap instead of waiting
  * for a network round trip.
  */
@@ -27,7 +65,8 @@ export function useNoteActions() {
   const client = useQueryClient();
 
   const like = useMutation({
-    mutationFn: ({ note, value }: ToggleVars) => setLike(note.id, value),
+    mutationFn: ({ note, value }: ToggleVars) => sendOrQueue('like', note.id, value, setLike),
+    networkMode: 'always',
     onMutate: async ({ note, value }) => {
       // A detail fetch that started before the tap would overwrite the
       // optimistic value when it lands, so cancel it.
@@ -43,11 +82,14 @@ export function useNoteActions() {
       if (context) patchNote(client, note.id, context.previous);
       useToastStore.getState().show(i18n.t('note.actionFailed'));
     },
-    onSuccess: (server, { note }) => patchNote(client, note.id, server),
+    onSuccess: (server, { note }) => {
+      if (server) patchNote(client, note.id, server);
+    },
   });
 
   const save = useMutation({
-    mutationFn: ({ note, value }: ToggleVars) => setSave(note.id, value),
+    mutationFn: ({ note, value }: ToggleVars) => sendOrQueue('save', note.id, value, setSave),
+    networkMode: 'always',
     onMutate: async ({ note, value }) => {
       await client.cancelQueries({ queryKey: noteKey(note.id) });
       const previous = { saved: note.saved, save_count: note.save_count };
@@ -61,7 +103,9 @@ export function useNoteActions() {
       if (context) patchNote(client, note.id, context.previous);
       useToastStore.getState().show(i18n.t('note.actionFailed'));
     },
-    onSuccess: (server, { note }) => patchNote(client, note.id, server),
+    onSuccess: (server, { note }) => {
+      if (server) patchNote(client, note.id, server);
+    },
   });
 
   // `mutate` is referentially stable, so these callbacks are too – required

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Note } from '../../api/types';
 import { NoteGrid } from '../../components/NoteGrid';
+import { OfflineBanner } from '../../components/OfflineBanner';
 import { FeedSkeleton } from '../../components/Skeleton';
 import { StateView } from '../../components/StateView';
 import { useTheme } from '../../theme/useTheme';
@@ -26,6 +27,20 @@ export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
     );
   }
 
+  if (feed.isPaused) {
+    return (
+      <View style={[styles.fill, { backgroundColor: theme.background }]}>
+        <OfflineBanner />
+        <StateView
+          testID="feed-offline-empty"
+          icon="cloud-offline-outline"
+          title={t('offline.noCacheTitle')}
+          body={t('offline.noCacheBody')}
+        />
+      </View>
+    );
+  }
+
   if (feed.isError && feed.notes.length === 0) {
     return (
       <View style={[styles.fill, { backgroundColor: theme.background }]}>
@@ -43,6 +58,7 @@ export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
 
   return (
     <View style={[styles.fill, { backgroundColor: theme.background }]}>
+      <OfflineBanner />
       <NoteGrid
         testID="feed-list"
         notes={feed.notes}

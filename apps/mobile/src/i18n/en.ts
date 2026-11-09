@@ -26,6 +26,14 @@ export const en = {
     emptyBody: 'Tap the bookmark on a note to keep it here.',
     errorTitle: "Couldn't load saved notes",
   },
+  offline: {
+    banner: "You're offline. Showing saved content.",
+    bannerPending_one: "You're offline. {{count}} change will sync later.",
+    bannerPending_other: "You're offline. {{count}} changes will sync later.",
+    syncFailed: "A change made offline couldn't be synced.",
+    noCacheTitle: "You're offline",
+    noCacheBody: 'Connect to the internet to load notes.',
+  },
   composer: {
     open: 'New note',
     title: 'New note',

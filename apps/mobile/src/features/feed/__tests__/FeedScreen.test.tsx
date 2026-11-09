@@ -1,8 +1,12 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
+import { NetworkError } from '../../../api/client';
 import { fetchNotes } from '../../../api/notes';
+import { MemoryStore } from '../../../offline/memoryStore';
+import { hydrateQueryCache } from '../../../offline/persistence';
+import { useNetworkStore } from '../../../state/networkStore';
 import { makePage } from '../../../test/factories';
-import { renderWithProviders } from '../../../test/render';
+import { createTestQueryClient, renderWithProviders } from '../../../test/render';
 import { FeedScreen } from '../FeedScreen';
 
 // The API module is replaced with a mock: tests never touch the network.
@@ -97,6 +101,25 @@ describe('FeedScreen', () => {
 
     await waitFor(() => expect(mockFetchNotes).toHaveBeenCalledTimes(2));
     expect(screen.getByText('Note 3')).toBeOnTheScreen();
+  });
+
+  it('shows cached notes with an offline banner when the device is offline', async () => {
+    const client = createTestQueryClient();
+    const store = new MemoryStore();
+    await store.setNotes('feed', makePage(3, 3, null).items);
+    await hydrateQueryCache(client, store);
+    mockFetchNotes.mockRejectedValue(new NetworkError());
+    useNetworkStore.setState({ isOnline: false });
+
+    await renderWithProviders(
+      <FeedScreen onOpenNote={jest.fn()} onToggleLike={jest.fn()} />,
+      client,
+    );
+
+    expect(screen.getByText('Note 3')).toBeOnTheScreen();
+    expect(screen.getByTestId('offline-banner')).toBeOnTheScreen();
+    expect(screen.queryByTestId('feed-error')).not.toBeOnTheScreen();
+    useNetworkStore.setState({ isOnline: true });
   });
 
   it('shows an empty state when there are no notes', async () => {

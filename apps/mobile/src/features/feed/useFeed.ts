@@ -63,8 +63,11 @@ export function useFeed() {
 
   return {
     notes,
-    isLoading: query.isPending,
+    // Offline with nothing cached, React Query pauses the request instead of
+    // failing it; treat that as "no data available" rather than loading forever.
+    isLoading: query.isPending && query.fetchStatus !== 'paused',
     isError: query.isError,
+    isPaused: query.isPending && query.fetchStatus === 'paused',
     isFetchingNextPage,
     hasNextPage,
     refreshing,

@@ -6,6 +6,7 @@ import { SAVED_KEY } from '../../api/noteCache';
 import { fetchSaved } from '../../api/notes';
 import type { Note } from '../../api/types';
 import { NoteGrid } from '../../components/NoteGrid';
+import { OfflineBanner } from '../../components/OfflineBanner';
 import { FeedSkeleton } from '../../components/Skeleton';
 import { StateView } from '../../components/StateView';
 import { useTheme } from '../../theme/useTheme';
@@ -21,7 +22,15 @@ export function SavedScreen({ onOpenNote, onToggleLike }: Props) {
   const saved = useQuery({ queryKey: SAVED_KEY, queryFn: fetchSaved });
 
   let content;
-  if (saved.isPending) {
+  if (saved.isPending && saved.fetchStatus === 'paused') {
+    content = (
+      <StateView
+        icon="cloud-offline-outline"
+        title={t('offline.noCacheTitle')}
+        body={t('offline.noCacheBody')}
+      />
+    );
+  } else if (saved.isPending) {
     content = <FeedSkeleton />;
   } else if (saved.isError && !saved.data) {
     content = (
@@ -53,7 +62,12 @@ export function SavedScreen({ onOpenNote, onToggleLike }: Props) {
       />
     );
   }
-  return <View style={[styles.fill, { backgroundColor: theme.background }]}>{content}</View>;
+  return (
+    <View style={[styles.fill, { backgroundColor: theme.background }]}>
+      <OfflineBanner />
+      {content}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
