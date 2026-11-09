@@ -31,3 +31,30 @@ export interface NotePage {
   items: Note[];
   next_cursor: string | null;
 }
+
+export interface LikeState {
+  liked: boolean;
+  like_count: number;
+}
+
+export interface SaveState {
+  saved: boolean;
+  save_count: number;
+}
+
+/** A photo chosen in the composer, before upload. */
+export interface DraftImage {
+  uri: string;
+  mimeType: string;
+  fileName: string;
+  /** Present on web, where the picker returns a real File object. */
+  file?: Blob;
+}
+
+export interface NoteDraft {
+  title: string;
+  body: string;
+  tags: string[];
+  lang: string;
+  images: DraftImage[];
+}

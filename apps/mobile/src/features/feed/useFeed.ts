@@ -1,11 +1,9 @@
-import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
+import { FEED_KEY, type FeedData } from '../../api/noteCache';
 import { fetchNotes } from '../../api/notes';
-import type { Note, NotePage } from '../../api/types';
-
-export const FEED_KEY = ['feed'] as const;
-export type FeedData = InfiniteData<NotePage, string | null>;
+import type { Note } from '../../api/types';
 
 /**
  * Infinite feed backed by cursor pagination.

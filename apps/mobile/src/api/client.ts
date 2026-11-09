@@ -27,9 +27,13 @@ export class NetworkError extends Error {
   }
 }
 
-export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = TIMEOUT_MS,
+): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {

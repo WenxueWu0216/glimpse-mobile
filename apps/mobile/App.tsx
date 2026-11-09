@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useMemo, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { Toast } from './src/components/Toast';
 import './src/i18n';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { createQueryClient } from './src/queryClient';
@@ -34,6 +35,7 @@ export default function App() {
         <NavigationContainer theme={navigationTheme}>
           <RootNavigator />
         </NavigationContainer>
+        <Toast />
         <StatusBar style={theme.dark ? 'light' : 'dark'} />
       </SafeAreaProvider>
     </QueryClientProvider>

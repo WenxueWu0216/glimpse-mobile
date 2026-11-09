@@ -1,10 +1,8 @@
-import { FlashList, type ListRenderItem } from '@shopify/flash-list';
-import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import type { Note } from '../../api/types';
-import { NoteCard } from '../../components/NoteCard';
+import { NoteGrid } from '../../components/NoteGrid';
 import { FeedSkeleton } from '../../components/Skeleton';
 import { StateView } from '../../components/StateView';
 import { useTheme } from '../../theme/useTheme';
@@ -15,19 +13,10 @@ interface Props {
   onToggleLike: (note: Note) => void;
 }
 
-const keyExtractor = (note: Note) => String(note.id);
-
 export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
   const theme = useTheme();
   const { t } = useTranslation();
   const feed = useFeed();
-
-  // useCallback keeps the same function between renders. Without it every
-  // render would hand each NoteCard a "new" prop and defeat memo().
-  const renderItem = useCallback<ListRenderItem<Note>>(
-    ({ item }) => <NoteCard note={item} onPress={onOpenNote} onToggleLike={onToggleLike} />,
-    [onOpenNote, onToggleLike],
-  );
 
   if (feed.isLoading) {
     return (
@@ -54,19 +43,12 @@ export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
 
   return (
     <View style={[styles.fill, { backgroundColor: theme.background }]}>
-      <FlashList
+      <NoteGrid
         testID="feed-list"
-        data={feed.notes}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        // FlashList recycles a small pool of cell views instead of mounting one
-        // per row like FlatList. `masonry` places each card in the shorter of
-        // the two columns, giving the staggered layout.
-        masonry
-        numColumns={2}
-        contentContainerStyle={styles.content}
+        notes={feed.notes}
+        onOpenNote={onOpenNote}
+        onToggleLike={onToggleLike}
         onEndReached={feed.loadMore}
-        onEndReachedThreshold={0.6}
         refreshing={feed.refreshing}
         onRefresh={() => void feed.refresh()}
         ListEmptyComponent={
@@ -93,6 +75,5 @@ export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { padding: 4 },
   footer: { paddingVertical: 16 },
 });
