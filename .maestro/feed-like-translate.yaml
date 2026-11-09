@@ -1,0 +1,66 @@
+# E2E: open app -> scroll feed -> open note -> like -> translate
+#
+# Run against a development or release build (not Expo Go), with the API up
+# and seeded:   maestro test .maestro/feed-like-translate.yaml
+#
+# The translate step accepts either outcome, so the flow also passes when the
+# backend has no ANTHROPIC_API_KEY and the app shows its fallback message.
+appId: com.wenxuewu.glimpse
+---
+- launchApp:
+    clearState: true
+
+# Feed loads
+- extendedWaitUntil:
+    visible:
+      id: "feed-list"
+    timeout: 20000
+- assertVisible:
+    id: "note-card-.*"
+
+# Scroll the feed (infinite scroll loads more pages), then come back up
+- scroll
+- scroll
+- scroll
+- assertVisible:
+    id: "note-card-.*"
+
+# Open a note that is not written in English, so "Translate" is offered
+- scrollUntilVisible:
+    element:
+      text: ".*(카페 투어|citywalk|の朝ごはん|Un domingo|Brunch maison|租房改造|ベランダ菜園).*"
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    text: ".*(카페 투어|citywalk|の朝ごはん|Un domingo|Brunch maison|租房改造|ベランダ菜園).*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "note-detail"
+    timeout: 10000
+
+# Like (optimistic: the button is selected immediately)
+- tapOn:
+    id: "detail-like-button"
+- assertVisible:
+    id: "detail-like-button"
+    selected: true
+
+# Translate
+- scrollUntilVisible:
+    element:
+      id: "translate-button"
+    direction: DOWN
+- tapOn:
+    id: "translate-button"
+- extendedWaitUntil:
+    visible:
+      text: "Show original|Try translating again"
+    timeout: 30000
+
+# Leave the note liked state clean for the next run
+- tapOn:
+    id: "detail-like-button"
+- back
+- assertVisible:
+    id: "feed-list"
