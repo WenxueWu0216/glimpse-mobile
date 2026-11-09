@@ -162,7 +162,15 @@ def seed(db_path: str, count: int, reset: bool = False, rng_seed: int = 7) -> in
     rng = random.Random(rng_seed)
     try:
         if reset:
-            for table in ("likes", "saves", "note_tags", "note_images", "notes", "users"):
+            for table in (
+                "translations",
+                "likes",
+                "saves",
+                "note_tags",
+                "note_images",
+                "notes",
+                "users",
+            ):
                 conn.execute(f"DELETE FROM {table}")
             conn.execute("DELETE FROM sqlite_sequence WHERE name = 'notes'")
         for user_id, name in AUTHORS:

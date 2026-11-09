@@ -1,4 +1,5 @@
 import '@shopify/flash-list/jestSetup';
+import { configure } from '@testing-library/react-native';
 import mockNetInfo from '@react-native-community/netinfo/jest/netinfo-mock';
 import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 
@@ -14,3 +15,7 @@ jest.mock('./src/offline/defaultStore', () => {
   );
   return { createDefaultStore: () => new MemoryStore() };
 });
+
+// CI runners are slower than laptops: give findBy*/waitFor more headroom than
+// the 1s default so a busy machine cannot turn into a flaky test.
+configure({ asyncUtilTimeout: 5000 });

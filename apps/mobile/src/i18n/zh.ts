@@ -22,6 +22,11 @@ export const zh: Translations = {
     actionFailed: '操作失败，请重试。',
     errorTitle: '笔记加载失败',
     photoOf: '第 {{index}} 张，共 {{total}} 张',
+    translate: '翻译',
+    translating: '翻译中…',
+    showOriginal: '查看原文',
+    translateRetry: '重新翻译',
+    translateFailed: '暂时无法翻译，已显示原文。',
   },
   saved: {
     emptyTitle: '还没有收藏',
@@ -37,6 +42,7 @@ export const zh: Translations = {
     noCacheBody: '请连接网络后加载笔记。',
   },
   composer: {
+    suggestedTags: '推荐标签',
     open: '发布笔记',
     title: '发布笔记',
     addPhoto: '添加照片',

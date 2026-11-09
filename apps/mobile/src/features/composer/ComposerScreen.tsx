@@ -22,6 +22,7 @@ import type { DraftImage, Note } from '../../api/types';
 import { TagChip } from '../../components/TagChip';
 import { useTheme } from '../../theme/useTheme';
 import { addTag } from '../../utils/tags';
+import { useSuggestedTags } from './useSuggestedTags';
 
 const MAX_IMAGES = 9;
 const TITLE_MAX = 100;
@@ -40,6 +41,8 @@ export function ComposerScreen({ onPublished }: Props) {
   const [body, setBody] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+
+  const suggested = useSuggestedTags(title, body).filter((tag) => !tags.includes(tag));
 
   const publish = useMutation({
     mutationFn: createNote,
@@ -72,6 +75,8 @@ export function ComposerScreen({ onPublished }: Props) {
     setTags((current) => addTag(current, raw));
     setTagInput('');
   };
+
+  const acceptSuggestion = (tag: string) => setTags((current) => addTag(current, tag));
 
   const onChangeTagInput = (text: string) => {
     // Typing a space or comma finishes the current tag.
@@ -183,6 +188,22 @@ export function ComposerScreen({ onPublished }: Props) {
           style={inputStyle}
         />
 
+        {suggested.length > 0 ? (
+          <View style={styles.suggested} testID="composer-suggested-tags">
+            <View style={styles.suggestedLabel}>
+              <Ionicons name="sparkles-outline" size={13} color={theme.textMuted} />
+              <Text style={{ color: theme.textMuted, fontSize: 13 }}>
+                {t('composer.suggestedTags')}
+              </Text>
+            </View>
+            <View style={styles.tags}>
+              {suggested.map((tag) => (
+                <TagChip key={tag} label={tag} onPress={acceptSuggestion} />
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         {publish.isError ? (
           <Text style={[styles.error, { color: theme.danger }]} accessibilityRole="alert">
             {t('composer.publishFailed')}
@@ -239,6 +260,8 @@ const styles = StyleSheet.create({
   titleInput: { fontSize: 18, fontWeight: '600' },
   bodyInput: { minHeight: 120 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  suggested: { gap: 8 },
+  suggestedLabel: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   error: { fontSize: 14 },
   publish: {
     marginTop: 8,

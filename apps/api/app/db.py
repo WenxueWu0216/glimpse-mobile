@@ -47,6 +47,21 @@ CREATE TABLE IF NOT EXISTS saves (
     created_at TEXT NOT NULL,
     PRIMARY KEY (user_id, note_id)
 );
+CREATE TABLE IF NOT EXISTS translations (
+    note_id INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    lang TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    PRIMARY KEY (note_id, lang)
+);
+CREATE TABLE IF NOT EXISTS tag_suggestions (
+    content_hash TEXT PRIMARY KEY,
+    tags TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS ai_usage (
+    day TEXT PRIMARY KEY,
+    calls INTEGER NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_likes_note ON likes(note_id);
 CREATE INDEX IF NOT EXISTS idx_saves_note ON saves(note_id);
 """

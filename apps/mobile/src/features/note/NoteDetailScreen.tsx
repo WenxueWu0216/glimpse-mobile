@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +15,7 @@ import { TagChip } from '../../components/TagChip';
 import { useTheme } from '../../theme/useTheme';
 import { ImageCarousel } from './ImageCarousel';
 import { useNoteActions } from './useNoteActions';
+import { useNoteTranslation } from './useNoteTranslation';
 
 interface Props {
   noteId: number;
@@ -36,6 +38,7 @@ export function NoteDetailScreen({ noteId }: Props) {
     initialDataUpdatedAt: () => client.getQueryState(FEED_KEY)?.dataUpdatedAt,
   });
   const note = query.data;
+  const translation = useNoteTranslation(note, i18n.language);
 
   if (!note) {
     return (
@@ -62,6 +65,16 @@ export function NoteDetailScreen({ noteId }: Props) {
     );
   }
 
+  // If translation fails the original text simply stays on screen.
+  const shown = translation.translation ?? note;
+  const translateLabel = translation.isTranslating
+    ? t('note.translating')
+    : translation.translation
+      ? t('note.showOriginal')
+      : translation.failed
+        ? t('note.translateRetry')
+        : t('note.translate');
+
   const date = new Date(note.created_at).toLocaleDateString(i18n.language, {
     year: 'numeric',
     month: 'short',
@@ -78,9 +91,41 @@ export function NoteDetailScreen({ noteId }: Props) {
             <Text style={[styles.authorName, { color: theme.text }]}>{note.author.name}</Text>
           </View>
           <Text style={[styles.title, { color: theme.text }]} accessibilityRole="header">
-            {note.title}
+            {shown.title}
           </Text>
-          {note.body ? <Text style={[styles.body, { color: theme.text }]}>{note.body}</Text> : null}
+          {shown.body ? (
+            <Text style={[styles.body, { color: theme.text }]}>{shown.body}</Text>
+          ) : null}
+          {translation.available ? (
+            <View style={styles.translateRow}>
+              <Pressable
+                testID="translate-button"
+                onPress={translation.toggle}
+                disabled={translation.isTranslating}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityState={{ busy: translation.isTranslating }}
+                style={styles.translateButton}
+              >
+                {translation.isTranslating ? (
+                  <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                  <Ionicons name="language-outline" size={16} color={theme.primary} />
+                )}
+                <Text style={[styles.translateLabel, { color: theme.primary }]}>
+                  {translateLabel}
+                </Text>
+              </Pressable>
+              {translation.failed ? (
+                <Text
+                  style={[styles.translateError, { color: theme.textMuted }]}
+                  accessibilityRole="alert"
+                >
+                  {t('note.translateFailed')}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
           {note.tags.length > 0 ? (
             <View style={styles.tags}>
               {note.tags.map((tag) => (
@@ -131,6 +176,10 @@ const styles = StyleSheet.create({
   body: { fontSize: 16, lineHeight: 24 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   date: { fontSize: 13 },
+  translateRow: { gap: 4 },
+  translateButton: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
+  translateLabel: { fontSize: 14, fontWeight: '600' },
+  translateError: { fontSize: 13 },
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

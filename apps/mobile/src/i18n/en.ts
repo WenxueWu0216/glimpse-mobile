@@ -20,6 +20,11 @@ export const en = {
     actionFailed: "Couldn't update. Please try again.",
     errorTitle: "Couldn't load this note",
     photoOf: 'Photo {{index}} of {{total}}',
+    translate: 'Translate',
+    translating: 'Translating…',
+    showOriginal: 'Show original',
+    translateRetry: 'Try translating again',
+    translateFailed: 'Translation is unavailable right now. Showing the original.',
   },
   saved: {
     emptyTitle: 'Nothing saved yet',
@@ -35,6 +40,7 @@ export const en = {
     noCacheBody: 'Connect to the internet to load notes.',
   },
   composer: {
+    suggestedTags: 'Suggested tags',
     open: 'New note',
     title: 'New note',
     addPhoto: 'Add photos',
