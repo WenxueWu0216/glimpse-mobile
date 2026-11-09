@@ -1,0 +1,52 @@
+{
+  "environment": {
+    "measuredAt": "2026-11-09T22:50:43.170Z",
+    "target": "Expo web export (react-native-web) in headless Chromium",
+    "chromium": "153.0.8010.12",
+    "viewport": "390x844 @2x",
+    "cpuThrottle": "4x",
+    "runsPerMetric": 5,
+    "scroll": "3000px/s, 15s while paginating, 6s on the loaded list",
+    "host": "4 vCPU linux"
+  },
+  "baseline": {
+    "firstCardMs": 1040,
+    "firstCardMinMs": 969,
+    "firstCardMaxMs": 1070,
+    "paginatingScrollFps": 33,
+    "paginatingFrameP95Ms": 116.7,
+    "paginatingWorstFrameMs": 383.2,
+    "paginatingSlowFramesPct": 9.1,
+    "paginatingJankMs": 7367,
+    "paginatingNotesReached": 300,
+    "notesLoaded": 500,
+    "mountedCards": 500,
+    "domNodes": 7566,
+    "jsHeapMB": 46.3,
+    "scrollFps": 60,
+    "scrollFrameP95Ms": 16.8,
+    "scrollWorstFrameMs": 16.8,
+    "scrollSlowFramesPct": 0,
+    "likeToPaintMs": 551.6
+  },
+  "optimized": {
+    "firstCardMs": 1021,
+    "firstCardMinMs": 996,
+    "firstCardMaxMs": 1035,
+    "paginatingScrollFps": 59.5,
+    "paginatingFrameP95Ms": 16.8,
+    "paginatingWorstFrameMs": 33.4,
+    "paginatingSlowFramesPct": 0.8,
+    "paginatingJankMs": 0,
+    "paginatingNotesReached": 320,
+    "notesLoaded": 500,
+    "mountedCards": 15,
+    "domNodes": 308,
+    "jsHeapMB": 10.3,
+    "scrollFps": 60,
+    "scrollFrameP95Ms": 16.7,
+    "scrollWorstFrameMs": 16.8,
+    "scrollSlowFramesPct": 0,
+    "likeToPaintMs": 24.4
+  }
+}

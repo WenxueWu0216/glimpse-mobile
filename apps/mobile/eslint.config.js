@@ -5,5 +5,11 @@ const prettier = require('eslint-config-prettier');
 module.exports = defineConfig([
   expoConfig,
   prettier,
-  { ignores: ['dist/*', 'coverage/*', '.expo/*', 'node_modules/*'] },
+  {
+    files: ['scripts/**'],
+    languageOptions: {
+      globals: { __dirname: 'readonly', process: 'readonly', console: 'readonly' },
+    },
+  },
+  { ignores: ['dist/*', 'dist-perf/*', 'coverage/*', '.expo/*', 'node_modules/*'] },
 ]);

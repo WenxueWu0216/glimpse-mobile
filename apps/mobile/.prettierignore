@@ -3,3 +3,4 @@ dist
 .expo
 coverage
 package-lock.json
+dist-perf

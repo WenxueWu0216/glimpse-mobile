@@ -7,7 +7,12 @@ import { OfflineBanner } from '../../components/OfflineBanner';
 import { FeedSkeleton } from '../../components/Skeleton';
 import { StateView } from '../../components/StateView';
 import { useTheme } from '../../theme/useTheme';
+import { BaselineNoteGrid } from '../../perf/BaselineNoteGrid';
 import { useFeed } from './useFeed';
+
+// Benchmark switch, inlined at build time. Anything but "baseline" (i.e. every
+// normal build) uses the optimised FlashList grid.
+const Grid = process.env.EXPO_PUBLIC_FEED_IMPL === 'baseline' ? BaselineNoteGrid : NoteGrid;
 
 interface Props {
   onOpenNote: (note: Note) => void;
@@ -59,7 +64,7 @@ export function FeedScreen({ onOpenNote, onToggleLike }: Props) {
   return (
     <View style={[styles.fill, { backgroundColor: theme.background }]}>
       <OfflineBanner />
-      <NoteGrid
+      <Grid
         testID="feed-list"
         notes={feed.notes}
         onOpenNote={onOpenNote}
