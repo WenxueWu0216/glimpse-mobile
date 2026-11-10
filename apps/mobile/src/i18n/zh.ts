@@ -33,6 +33,12 @@ export const zh: Translations = {
     emptyBody: '点击笔记上的书签即可收藏。',
     errorTitle: '收藏加载失败',
   },
+  settings: {
+    language: '语言',
+    appearance: '外观',
+    theme: { system: '跟随系统', light: '浅色', dark: '深色' },
+    translateNote: '其他语言的笔记可以翻译成此处选择的语言。',
+  },
   offline: {
     banner: '当前离线，正在显示已缓存的内容。',
     bannerPending_one: '当前离线，{{count}} 项操作将在联网后同步。',

@@ -31,6 +31,13 @@ export const en = {
     emptyBody: 'Tap the bookmark on a note to keep it here.',
     errorTitle: "Couldn't load saved notes",
   },
+  settings: {
+    language: 'Language',
+    appearance: 'Appearance',
+    theme: { system: 'Match device', light: 'Light', dark: 'Dark' },
+    translateNote:
+      'Notes written in other languages can be translated into the language chosen here.',
+  },
   offline: {
     banner: "You're offline. Showing saved content.",
     bannerPending_one: "You're offline. {{count}} change will sync later.",

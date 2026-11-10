@@ -16,6 +16,7 @@ import { FeedScreen } from '../features/feed/FeedScreen';
 import { NoteDetailScreen } from '../features/note/NoteDetailScreen';
 import { useNoteActions } from '../features/note/useNoteActions';
 import { SavedScreen } from '../features/saved/SavedScreen';
+import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { useTheme } from '../theme/useTheme';
 import type { RootStackParamList, TabParamList } from './types';
 
@@ -99,6 +100,17 @@ function Tabs() {
           tabBarButtonTestID: 'tab-saved',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={focused ? 'bookmark' : 'bookmark-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: t('tabs.settings'),
+          tabBarButtonTestID: 'tab-settings',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={size} color={color} />
           ),
         }}
       />

@@ -35,7 +35,9 @@ describe('like while offline', () => {
 
     await waitFor(async () => expect(await getSyncQueue().pendingCount()).toBe(1));
     expect(mockSetLike).not.toHaveBeenCalled();
-    expect(likeButton()).toBeSelected();
+    // The queue is checked through the store, not the UI, so give React a
+    // chance to commit the optimistic update before asserting on the screen.
+    await waitFor(() => expect(likeButton()).toBeSelected());
     expect(screen.getByText('11')).toBeOnTheScreen();
     expect(useToastStore.getState().message).toBeNull();
   });
@@ -51,7 +53,7 @@ describe('like while offline', () => {
     await waitFor(() => expect(likeButton()).not.toBeSelected());
 
     await waitFor(async () => expect(await getSyncQueue().pendingCount()).toBe(0));
-    expect(screen.getByText('10')).toBeOnTheScreen();
+    expect(await screen.findByText('10')).toBeOnTheScreen();
   });
 
   it('queues the like when the request fails before the device noticed it is offline', async () => {
@@ -63,7 +65,7 @@ describe('like while offline', () => {
 
     await waitFor(async () => expect(await getSyncQueue().pendingCount()).toBe(1));
     // Not rolled back: it will be retried by the queue.
-    expect(likeButton()).toBeSelected();
+    await waitFor(() => expect(likeButton()).toBeSelected());
     expect(useToastStore.getState().message).toBeNull();
   });
 

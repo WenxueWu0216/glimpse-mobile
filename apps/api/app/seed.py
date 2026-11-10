@@ -224,6 +224,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--count", type=int, default=600)
     parser.add_argument("--reset", action="store_true", help="delete existing data first")
+    parser.add_argument("--if-empty", action="store_true", help="do nothing if notes exist")
     args = parser.parse_args()
-    total = seed(get_settings().db_path, args.count, reset=args.reset)
+    db_path = get_settings().db_path
+    init_db(db_path)
+    existing = connect(db_path)
+    has_notes = existing.execute("SELECT COUNT(*) FROM notes").fetchone()[0] > 0
+    existing.close()
+    count = 0 if args.if_empty and has_notes else args.count
+    total = seed(db_path, count, reset=args.reset)
     print(f"Database now has {total} notes")

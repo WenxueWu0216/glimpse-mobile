@@ -1,5 +1,6 @@
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,7 +12,12 @@ import { startNetworkSync } from './src/offline/networkSync';
 import { hydrateQueryCache, persistQueryCache } from './src/offline/persistence';
 import { getOfflineStore, getSyncQueue } from './src/offline/runtime';
 import { createQueryClient } from './src/queryClient';
+import { connectSettings } from './src/state/settingsPersistence';
 import { useTheme } from './src/theme/useTheme';
+
+// Keep the native splash screen up until cached data and settings are loaded,
+// so the first frame the user sees is real content in the right theme.
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function App() {
   const [queryClient] = useState(createQueryClient);
@@ -22,19 +28,22 @@ export default function App() {
     const store = getOfflineStore();
     let cancelled = false;
     let cleanup = () => {};
-    void hydrateQueryCache(queryClient, store)
+    void Promise.all([
       // A broken cache must never stop the app from starting.
-      .catch(() => undefined)
-      .then(() => {
-        if (cancelled) return;
-        const stopPersisting = persistQueryCache(queryClient, store);
-        const stopNetwork = startNetworkSync(queryClient, getSyncQueue());
-        cleanup = () => {
-          stopPersisting();
-          stopNetwork();
-        };
-        setReady(true);
-      });
+      hydrateQueryCache(queryClient, store).catch(() => undefined),
+      connectSettings(store).catch(() => () => {}),
+    ]).then(([, stopSettings]) => {
+      if (cancelled) return stopSettings();
+      const stopPersisting = persistQueryCache(queryClient, store);
+      const stopNetwork = startNetworkSync(queryClient, getSyncQueue());
+      cleanup = () => {
+        stopSettings();
+        stopPersisting();
+        stopNetwork();
+      };
+      setReady(true);
+      SplashScreen.hide();
+    });
     return () => {
       cancelled = true;
       cleanup();
